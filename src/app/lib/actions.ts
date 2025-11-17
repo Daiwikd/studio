@@ -8,6 +8,12 @@ import { addQuiz } from './data';
 import { redirect } from 'next/navigation';
 import type { Question } from './types';
 import { createQuizSchema, generateQuestionsSchema, type GenerateQuestionsState } from './schemas';
+import {
+  addDoc,
+  collection,
+  serverTimestamp,
+} from 'firebase/firestore';
+import { initializeFirebase } from '@/firebase';
 
 function randomId() {
   return Math.random().toString(36).substring(2, 9);
@@ -58,7 +64,7 @@ export async function createQuizAction(formData: FormData) {
   const quizData = validatedFields.data;
 
   // Re-construct question objects to ensure only expected properties are used.
-  // The ID is omitted here, as Firestore will generate it.
+  // The ID from the client is discarded.
   const questionsWithServerIds: Omit<Question, 'id'>[] = quizData.questions.map(q => ({
     question: q.question,
     answer: q.answer,
@@ -72,8 +78,19 @@ export async function createQuizAction(formData: FormData) {
   };
 
   try {
-    const newQuiz = await addQuiz(finalQuizData);
-    redirect(`/quiz/${newQuiz.id}/share`);
+    const { firestore } = initializeFirebase();
+    const collectionRef = collection(firestore, 'quizzes');
+
+    const docRef = await addDoc(collectionRef, {
+      ...finalQuizData,
+      createdAt: serverTimestamp(),
+    });
+
+    if (!docRef || !docRef.id) {
+      throw new Error('Failed to create quiz document.');
+    }
+
+    redirect(`/quiz/${docRef.id}/share`);
   } catch (error) {
     console.error(error);
     throw new Error('Failed to create the quiz. Please try again.');

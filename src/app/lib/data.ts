@@ -5,9 +5,6 @@ import {
   getFirestore,
   doc,
   getDoc,
-  addDoc,
-  collection,
-  serverTimestamp,
 } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
 
@@ -22,26 +19,10 @@ export const getQuizById = async (
   const docSnap = await getDoc(docRef);
 
   if (docSnap.exists()) {
+    // The type assertion here is okay because we trust the data from our DB
+    // In a more complex app, you might want to validate this with Zod as well
     return { id: docSnap.id, ...docSnap.data() } as Quiz;
   } else {
     return undefined;
   }
-};
-
-export const addQuiz = async (
-  quiz: Omit<Quiz, 'id'>
-): Promise<{ id: string }> => {
-  const { firestore } = initializeFirebase();
-  const collectionRef = collection(firestore, 'quizzes');
-
-  const docRef = await addDoc(collectionRef, {
-    ...quiz,
-    createdAt: serverTimestamp(),
-  });
-  
-  if (!docRef) {
-    throw new Error("Failed to create quiz document.");
-  }
-
-  return { id: docRef.id };
 };

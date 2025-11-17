@@ -4,7 +4,7 @@ import {
   createQuizAction,
   generateQuestionsAction,
 } from '@/app/lib/actions';
-import type { GenerateQuestionsState, GenerateQuestionsFormData } from '@/app/lib/schemas';
+import { type GenerateQuestionsState } from '@/app/lib/schemas';
 import { createQuizSchema, generateQuestionsSchema } from '@/app/lib/schemas';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type * as z from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,6 +40,7 @@ import {
 } from '@/components/ui/accordion';
 
 type QuizFormData = z.infer<typeof createQuizSchema>;
+type GenerateQuestionsFormData = z.infer<typeof generateQuestionsSchema>;
 
 function randomId() {
   return Math.random().toString(36).substring(2, 9);
@@ -73,12 +74,11 @@ function GeneratorForm({
       });
     }
   }, [state, onQuestionsGenerated, toast]);
-
+  
   return (
     <Form {...form}>
       <form
         action={formAction}
-        className="space-y-4"
         onSubmit={form.handleSubmit(() => {
           const formData = new FormData();
           const data = form.getValues();
@@ -86,6 +86,7 @@ function GeneratorForm({
           formData.append('numberOfQuestions', String(data.numberOfQuestions));
           formAction(formData);
         })}
+        className="space-y-4"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
@@ -141,7 +142,7 @@ function GeneratorForm({
   );
 }
 
-function QuestionForm({ form }: { form: ReturnType<typeof useForm<QuizFormData>> }) {
+function QuestionForm({ form }: { form: UseFormReturn<QuizFormData> }) {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'questions',
@@ -263,7 +264,7 @@ function QuestionForm({ form }: { form: ReturnType<typeof useForm<QuizFormData>>
   );
 }
 
-function OptionsArray({ form, questionIndex }: { form: ReturnType<typeof useForm<QuizFormData>>, questionIndex: number }) {
+function OptionsArray({ form, questionIndex }: { form: UseFormReturn<QuizFormData>, questionIndex: number }) {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: `questions.${questionIndex}.options`,

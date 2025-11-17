@@ -10,6 +10,10 @@ import type { Question } from './types';
 import { createQuizSchema, generateQuestionsSchema, type GenerateQuestionsState } from './schemas';
 import { randomUUID } from 'crypto';
 
+function randomId() {
+  return Math.random().toString(36).substring(2, 9);
+}
+
 export async function generateQuestionsAction(
   prevState: GenerateQuestionsState,
   formData: FormData
@@ -30,7 +34,7 @@ export async function generateQuestionsAction(
     );
 
     const questions: Question[] = output.questions.map((q) => ({
-      id: randomUUID(),
+      id: randomId(), // Add a temporary client-side ID
       question: q.question,
       answer: q.answer,
       options: q.options || [],
@@ -53,13 +57,20 @@ export async function createQuizAction(formData: FormData) {
   }
   
   const quizData = validatedFields.data;
-  quizData.questions = quizData.questions.map(q => ({
+
+  // Replace client-side IDs with new server-side UUIDs
+  const questionsWithServerIds: Question[] = quizData.questions.map(q => ({
     ...q,
-    id: randomUUID(),
+    id: randomUUID(), // Assign a new, secure UUID on the server
   }));
 
+  const finalQuizData = {
+    ...quizData,
+    questions: questionsWithServerIds,
+  };
+
   try {
-    const newQuiz = await addQuiz(quizData);
+    const newQuiz = await addQuiz(finalQuizData);
     redirect(`/quiz/${newQuiz.id}/share`);
   } catch (error) {
     console.error(error);

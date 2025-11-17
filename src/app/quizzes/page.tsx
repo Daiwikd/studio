@@ -3,7 +3,7 @@
 
 import { useMemo } from 'react';
 import Header from '@/components/Header';
-import { useFirebase } from '@/firebase/provider';
+import { useFirebase, useMemoFirebase } from '@/firebase/provider';
 import { collection } from 'firebase/firestore';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import type { Quiz } from '@/app/lib/types';
@@ -16,7 +16,7 @@ import { ArrowRight, BookOpen } from 'lucide-react';
 function QuizList() {
   const { firestore } = useFirebase();
 
-  const quizzesCollectionRef = useMemo(() => {
+  const quizzesCollectionRef = useMemoFirebase(() => {
     if (!firestore) return null;
     return collection(firestore, 'quizzes');
   }, [firestore]);

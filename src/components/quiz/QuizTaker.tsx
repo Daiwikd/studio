@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { Quiz, Question } from '@/app/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,20 +13,34 @@ import { Input } from '../ui/input';
 
 type UserAnswers = Record<string, string>;
 
+// We need a stable ID for each question for the userAnswers map and React keys.
+// Since the server doesn't send one, we'll create a new type that includes one.
+type QuestionWithId = Omit<Question, 'id'> & { id: string };
+
+function addStableIdsToQuestions(questions: Omit<Question, 'id'>[]): QuestionWithId[] {
+    return questions.map((q, index) => ({
+        ...q,
+        id: `${index}-${q.question.slice(0, 10)}` // Create a simple, stable ID
+    }));
+}
+
+
 export function QuizTaker({ quiz }: { quiz: Quiz }) {
   const router = useRouter();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<UserAnswers>({});
+
+  const questionsWithIds = useMemo(() => addStableIdsToQuestions(quiz.questions), [quiz.questions]);
   
-  const currentQuestion = quiz.questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / quiz.questions.length) * 100;
+  const currentQuestion = questionsWithIds[currentQuestionIndex];
+  const progress = ((currentQuestionIndex + 1) / questionsWithIds.length) * 100;
 
   const handleAnswerChange = (questionId: string, answer: string) => {
     setUserAnswers((prev) => ({ ...prev, [questionId]: answer }));
   };
 
   const goToNext = () => {
-    if (currentQuestionIndex < quiz.questions.length - 1) {
+    if (currentQuestionIndex < questionsWithIds.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     }
   };
@@ -48,7 +62,7 @@ export function QuizTaker({ quiz }: { quiz: Quiz }) {
         <CardHeader>
           <CardTitle className="font-headline text-2xl">{quiz.title}</CardTitle>
           <CardDescription>
-            Question {currentQuestionIndex + 1} of {quiz.questions.length}
+            Question {currentQuestionIndex + 1} of {questionsWithIds.length}
           </CardDescription>
           <Progress value={progress} className="mt-2" />
         </CardHeader>
@@ -96,7 +110,7 @@ export function QuizTaker({ quiz }: { quiz: Quiz }) {
           <Button variant="outline" onClick={goToPrevious} disabled={currentQuestionIndex === 0}>
             <ArrowLeft className="mr-2 h-4 w-4" /> Previous
           </Button>
-          {currentQuestionIndex < quiz.questions.length - 1 ? (
+          {currentQuestionIndex < questionsWithIds.length - 1 ? (
             <Button onClick={goToNext}>
               Next <ArrowRight className="ml-2 h-4 w-4" />
             </Button>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import type { Quiz } from '@/app/lib/types';
+import type { Quiz, Question } from '@/app/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Home, RefreshCw, XCircle } from 'lucide-react';
@@ -10,9 +10,24 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 
 type UserAnswers = Record<string, string>;
 
+// We need a stable ID for each question for the userAnswers map and React keys.
+// Since the server doesn't send one, we'll create a new type that includes one.
+type QuestionWithId = Omit<Question, 'id'> & { id: string };
+
+function addStableIdsToQuestions(questions: Omit<Question, 'id'>[]): QuestionWithId[] {
+    return questions.map((q, index) => ({
+        ...q,
+        id: `${index}-${q.question.slice(0, 10)}` // Create a simple, stable ID
+    }));
+}
+
+
 export function QuizResults({ quiz }: { quiz: Quiz }) {
   const [userAnswers, setUserAnswers] = useState<UserAnswers>({});
   const [mounted, setMounted] = useState(false);
+  
+  // Memoize the questions with stable IDs
+  const questionsWithIds = useMemo(() => addStableIdsToQuestions(quiz.questions), [quiz.questions]);
 
   useEffect(() => {
     const storedAnswers = localStorage.getItem(`quiz_${quiz.id}_answers`);
@@ -23,13 +38,13 @@ export function QuizResults({ quiz }: { quiz: Quiz }) {
   }, [quiz.id]);
 
   const { score, total } = useMemo(() => {
-    const score = quiz.questions.reduce((acc, question) => {
+    const score = questionsWithIds.reduce((acc, question) => {
       const correctAnswer = question.answer.trim().toLowerCase();
       const userAnswer = (userAnswers[question.id] || '').trim().toLowerCase();
       return acc + (correctAnswer === userAnswer ? 1 : 0);
     }, 0);
-    return { score, total: quiz.questions.length };
-  }, [quiz.questions, userAnswers]);
+    return { score, total: questionsWithIds.length };
+  }, [questionsWithIds, userAnswers]);
 
   const scorePercentage = total > 0 ? (score / total) * 100 : 0;
 
@@ -65,7 +80,7 @@ export function QuizResults({ quiz }: { quiz: Quiz }) {
       <div>
         <h2 className="text-2xl font-headline font-bold mb-4 text-center">Review Your Answers</h2>
         <Accordion type="single" collapsible className="w-full">
-            {quiz.questions.map((question, index) => {
+            {questionsWithIds.map((question, index) => {
                 const userAnswer = userAnswers[question.id] || 'Not answered';
                 const isCorrect = question.answer.trim().toLowerCase() === userAnswer.trim().toLowerCase();
                 return (

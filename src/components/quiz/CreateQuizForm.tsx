@@ -43,6 +43,10 @@ import {
 type QuizFormData = z.infer<typeof createQuizSchema>;
 type GenerateQuestionsFormData = z.infer<typeof generateQuestionsSchema>;
 
+function randomId() {
+  return Math.random().toString(36).substring(2, 9);
+}
+
 function GeneratorForm({
   onQuestionsGenerated,
 }: {
@@ -139,7 +143,7 @@ function QuestionForm({ form }: { form: ReturnType<typeof useForm<QuizFormData>>
   
   const addQuestion = () => {
     append({
-      id: crypto.randomUUID(),
+      id: randomId(),
       question: '',
       answer: '',
       options: [],

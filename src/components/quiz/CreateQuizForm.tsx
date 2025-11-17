@@ -30,8 +30,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useFormState, useFormStatus } from 'react-dom';
-import { useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef } from 'react';
+import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
 import {
   Accordion,
@@ -47,7 +47,7 @@ function GeneratorForm({
 }: {
   onQuestionsGenerated: (questions: GenerateQuestionsState['questions']) => void;
 }) {
-  const [state, formAction] = useFormState(generateQuestionsAction, {});
+  const [state, formAction] = useActionState(generateQuestionsAction, {});
   const { pending } = useFormStatus();
   const { toast } = useToast();
 

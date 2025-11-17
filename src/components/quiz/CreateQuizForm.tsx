@@ -52,8 +52,7 @@ function GeneratorForm({
 }: {
   onQuestionsGenerated: (questions: GenerateQuestionsState['questions']) => void;
 }) {
-  const [state, formAction] = useActionState(generateQuestionsAction, {});
-  const { pending } = useFormStatus();
+  const [state, formAction, pending] = useActionState(generateQuestionsAction, {});
   const { toast } = useToast();
 
   const form = useForm<GenerateQuestionsFormData>({
@@ -63,7 +62,6 @@ function GeneratorForm({
       numberOfQuestions: 5,
     },
   });
-
 
   useEffect(() => {
     if (state.questions) {
@@ -79,7 +77,7 @@ function GeneratorForm({
   }, [state, onQuestionsGenerated, toast]);
 
   return (
-    <Form {...form}>
+     <Form {...form}>
       <form action={formAction} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
@@ -136,7 +134,7 @@ function GeneratorForm({
 }
 
 function QuestionForm({ form }: { form: ReturnType<typeof useForm<QuizFormData>> }) {
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'questions',
   });
@@ -146,7 +144,7 @@ function QuestionForm({ form }: { form: ReturnType<typeof useForm<QuizFormData>>
       id: randomId(),
       question: '',
       answer: '',
-      options: [],
+      options: ['', '', '', ''],
       type: 'multiple_choice',
     });
   };
@@ -167,7 +165,15 @@ function QuestionForm({ form }: { form: ReturnType<typeof useForm<QuizFormData>>
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Question Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select 
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        if (value === 'multiple_choice' && form.getValues(`questions.${index}.options`).length === 0) {
+                          form.setValue(`questions.${index}.options`, ['', '', '', '']);
+                        }
+                      }} 
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a question type" />
@@ -198,23 +204,7 @@ function QuestionForm({ form }: { form: ReturnType<typeof useForm<QuizFormData>>
               />
               
               {form.watch(`questions.${index}.type`) === 'multiple_choice' && (
-                <div className="space-y-2">
-                  <FormLabel>Options</FormLabel>
-                  {form.watch(`questions.${index}.options`).map((_, optionIndex) => (
-                    <FormField
-                      key={optionIndex}
-                      control={form.control}
-                      name={`questions.${index}.options.${optionIndex}`}
-                      render={({ field }) => (
-                        <FormItem>
-                           <FormControl>
-                             <Input {...field} placeholder={`Option ${optionIndex + 1}`} />
-                           </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  ))}
-                </div>
+                <OptionsArray form={form} questionIndex={index} />
               )}
 
               <FormField
@@ -260,6 +250,46 @@ function QuestionForm({ form }: { form: ReturnType<typeof useForm<QuizFormData>>
       </Accordion>
       <Button type="button" variant="outline" onClick={addQuestion}>
         <Plus className="mr-2 h-4 w-4" /> Add Question
+      </Button>
+    </div>
+  );
+}
+
+function OptionsArray({ form, questionIndex }: { form: ReturnType<typeof useForm<QuizFormData>>, questionIndex: number }) {
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: `questions.${questionIndex}.options`,
+  });
+
+  return (
+    <div className="space-y-2">
+      <FormLabel>Options</FormLabel>
+      {fields.map((field, optionIndex) => (
+        <div key={field.id} className="flex items-center gap-2">
+          <FormField
+            control={form.control}
+            name={`questions.${questionIndex}.options.${optionIndex}`}
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormControl>
+                  <Input {...field} placeholder={`Option ${optionIndex + 1}`} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <Button type="button" variant="ghost" size="icon" onClick={() => remove(optionIndex)} className="shrink-0">
+            <Trash2 className="h-4 w-4 text-muted-foreground" />
+          </Button>
+        </div>
+      ))}
+       <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={() => append('')}
+        className="mt-2"
+      >
+        <Plus className="mr-2 h-4 w-4" /> Add Option
       </Button>
     </div>
   );

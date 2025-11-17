@@ -1,9 +1,6 @@
 'use client';
 
-import {
-  createQuizAction,
-  generateQuestionsAction,
-} from '@/app/lib/actions';
+import { generateQuestionsAction } from '@/app/lib/actions';
 import { type GenerateQuestionsState } from '@/app/lib/schemas';
 import { createQuizSchema, generateQuestionsSchema } from '@/app/lib/schemas';
 import { Button } from '@/components/ui/button';
@@ -30,7 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useActionState, useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import {
   Accordion,
@@ -38,6 +35,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { useFirebase } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
 
 type QuizFormData = z.infer<typeof createQuizSchema>;
 type GenerateQuestionsFormData = z.infer<typeof generateQuestionsSchema>;
@@ -305,8 +305,10 @@ function OptionsArray({ form, questionIndex }: { form: UseFormReturn<QuizFormDat
 }
 
 export function CreateQuizForm() {
-  const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useToast();
+  const { firestore } = useFirebase();
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<QuizFormData>({
     resolver: zodResolver(createQuizSchema),
@@ -316,7 +318,7 @@ export function CreateQuizForm() {
     },
   });
 
-  const { isSubmitting, errors } = form.formState;
+  const { errors } = form.formState;
 
   useEffect(() => {
     if (errors.questions?.message) {
@@ -333,6 +335,54 @@ export function CreateQuizForm() {
   ) => {
     if (questions) {
       form.setValue('questions', questions);
+    }
+  };
+
+  const onSubmit = async (data: QuizFormData) => {
+    if (!firestore) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Firestore is not available. Please try again later.',
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+
+    try {
+      const questionsForDb = data.questions.map(q => ({
+        question: q.question,
+        answer: q.answer,
+        options: q.options || [],
+        type: q.type,
+      }));
+
+      const finalQuizData = {
+        title: data.title,
+        questions: questionsForDb,
+        createdAt: serverTimestamp(),
+      };
+      
+      const collectionRef = collection(firestore, 'quizzes');
+      const docRef = await addDoc(collectionRef, finalQuizData);
+
+      toast({
+        title: 'Success!',
+        description: 'Your quiz has been created.',
+      });
+
+      router.push(`/quiz/${docRef.id}/share`);
+
+    } catch (error) {
+      console.error("Error creating quiz:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+        description: 'Failed to create the quiz. Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -354,21 +404,7 @@ export function CreateQuizForm() {
         <CardContent>
           <Form {...form}>
             <form
-              ref={formRef}
-              action={async () => {
-                const valid = await form.trigger();
-                if (valid) {
-                  const formData = new FormData();
-                  formData.set('data', JSON.stringify(form.getValues()));
-                  await createQuizAction(formData);
-                } else {
-                   toast({
-                    variant: 'destructive',
-                    title: 'Validation Error',
-                    description: 'Please fix the errors before submitting.',
-                  });
-                }
-              }}
+              onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-8"
             >
               <FormField

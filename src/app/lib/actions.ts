@@ -4,11 +4,9 @@ import {
   generateQuizQuestions,
   type GenerateQuizQuestionsOutput,
 } from '@/ai/flows/generate-quiz-questions';
-import { redirect } from 'next/navigation';
-import type { Question } from './types';
-import { createQuizSchema, generateQuestionsSchema, type GenerateQuestionsState } from './schemas';
-import { getAdminDB } from '@/firebase/admin';
-import { FieldValue, type DocumentReference } from 'firebase-admin/firestore';
+import { type Question } from './types';
+import { generateQuestionsSchema, type GenerateQuestionsState } from './schemas';
+
 
 function randomId() {
   return Math.random().toString(36).substring(2, 9);
@@ -47,49 +45,4 @@ export async function generateQuestionsAction(
     console.error(error);
     return { error: 'Failed to generate questions. Please try again.' };
   }
-}
-
-export async function createQuizAction(formData: FormData) {
-  const data = JSON.parse(formData.get('data') as string);
-  const validatedFields = createQuizSchema.safeParse(data);
-
-  if (!validatedFields.success) {
-    throw new Error(validatedFields.error.message);
-  }
-  
-  const quizData = validatedFields.data;
-  
-  const questionsForDb = quizData.questions.map(q => ({
-    question: q.question,
-    answer: q.answer,
-    options: q.options || [],
-    type: q.type,
-  }));
-
-  const finalQuizData = {
-    title: quizData.title,
-    questions: questionsForDb,
-  };
-
-  let docRef: DocumentReference | null = null;
-  try {
-    const db = getAdminDB();
-    const collectionRef = db.collection('quizzes');
-    
-    docRef = await collectionRef.add({
-      ...finalQuizData,
-      createdAt: FieldValue.serverTimestamp(),
-    });
-
-  } catch (error) {
-    console.error(error);
-    throw new Error('Failed to create the quiz. Please try again.');
-  }
-
-  if (!docRef || !docRef.id) {
-    throw new Error('Failed to create quiz document.');
-  }
-
-  // This redirect will be caught by the client and followed
-  redirect(`/quiz/${docRef.id}/share`);
 }

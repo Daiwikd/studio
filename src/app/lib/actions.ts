@@ -81,12 +81,13 @@ export async function createQuizAction(formData: FormData) {
       createdAt: FieldValue.serverTimestamp(),
     });
 
-    if (!docRef || !docRef.id) {
-      throw new Error('Failed to create quiz document.');
-    }
   } catch (error) {
     console.error(error);
     throw new Error('Failed to create the quiz. Please try again.');
+  }
+
+  if (!docRef || !docRef.id) {
+    throw new Error('Failed to create quiz document.');
   }
 
   // This redirect will be caught by the client and followed

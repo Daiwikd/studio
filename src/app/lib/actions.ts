@@ -61,15 +61,15 @@ export async function createQuizAction(formData: FormData) {
   // Re-construct question objects to ensure only expected properties are used,
   // and assign new, secure UUIDs.
   const questionsWithServerIds: Question[] = quizData.questions.map(q => ({
+    id: randomUUID(), // Assign a new, secure UUID on the server
     question: q.question,
     answer: q.answer,
     options: q.options,
     type: q.type,
-    id: randomUUID(), // Assign a new, secure UUID on the server
   }));
 
   const finalQuizData = {
-    ...quizData,
+    title: quizData.title,
     questions: questionsWithServerIds,
   };
 

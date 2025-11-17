@@ -1,4 +1,5 @@
-'use client';
+'use server';
+
 import type { Quiz } from './types';
 import {
   getFirestore,
@@ -9,10 +10,9 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
-import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
-// NOTE: This file is now client-side safe as it uses the client SDK.
-// The functions now require a Firestore instance to be passed in.
+// NOTE: This file is now server-side safe.
+// These functions can be called from Server Actions or Route Handlers.
 
 export const getQuizById = async (
   id: string
@@ -34,15 +34,10 @@ export const addQuiz = async (
   const { firestore } = initializeFirebase();
   const collectionRef = collection(firestore, 'quizzes');
 
-  // Use the non-blocking update to add the document
-  const docRefPromise = addDocumentNonBlocking(collectionRef, {
+  const docRef = await addDoc(collectionRef, {
     ...quiz,
     createdAt: serverTimestamp(),
   });
-
-  // We need to wait for the promise to resolve to get the ID for the redirect.
-  // In other scenarios, you might not need to wait.
-  const docRef = await docRefPromise;
   
   if (!docRef) {
     throw new Error("Failed to create quiz document.");

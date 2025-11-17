@@ -8,7 +8,6 @@ import { addQuiz } from './data';
 import { redirect } from 'next/navigation';
 import type { Question } from './types';
 import { createQuizSchema, generateQuestionsSchema, type GenerateQuestionsState } from './schemas';
-import { randomUUID } from 'crypto';
 
 function randomId() {
   return Math.random().toString(36).substring(2, 9);
@@ -58,10 +57,9 @@ export async function createQuizAction(formData: FormData) {
   
   const quizData = validatedFields.data;
 
-  // Re-construct question objects to ensure only expected properties are used,
-  // and assign new, secure UUIDs.
+  // Re-construct question objects to ensure only expected properties are used.
+  // The ID is omitted here, as Firestore will generate it.
   const questionsWithServerIds: Omit<Question, 'id'>[] = quizData.questions.map(q => ({
-    // No ID here, Firestore will generate it.
     question: q.question,
     answer: q.answer,
     options: q.options,

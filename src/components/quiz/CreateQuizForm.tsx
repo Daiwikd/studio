@@ -372,7 +372,7 @@ export function CreateQuizForm() {
         description: 'Your quiz has been created.',
       });
 
-      router.push(`/quizzes`);
+      router.push(`/quiz/${docRef.id}/share`);
 
     } catch (error) {
       console.error("Error creating quiz:", error);

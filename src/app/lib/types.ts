@@ -12,3 +12,6 @@ export type Quiz = {
   questions: Omit<Question, 'id'>[];
   createdAt?: any; 
 };
+
+// This represents the data structure of a Quiz document in Firestore, without the ID.
+export type QuizDocument = Omit<Quiz, 'id'>;

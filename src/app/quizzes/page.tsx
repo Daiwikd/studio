@@ -3,10 +3,10 @@
 
 import { useState } from 'react';
 import Header from '@/components/Header';
-import { useFirebase, useMemoFirebase } from '@/firebase/provider';
+import { useFirebase, useMemoFirebase } from '@/firebase';
 import { collection, doc, deleteDoc } from 'firebase/firestore';
 import { useCollection, type WithId } from '@/firebase/firestore/use-collection';
-import type { Quiz } from '@/app/lib/types';
+import type { QuizDocument } from '@/app/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
@@ -28,14 +28,14 @@ import { useToast } from '@/hooks/use-toast';
 function QuizList() {
   const { firestore } = useFirebase();
   const { toast } = useToast();
-  const [quizToDelete, setQuizToDelete] = useState<WithId<Omit<Quiz, 'id'>> | null>(null);
+  const [quizToDelete, setQuizToDelete] = useState<WithId<QuizDocument> | null>(null);
 
   const quizzesCollectionRef = useMemoFirebase(() => {
     if (!firestore) return null;
     return collection(firestore, 'quizzes');
   }, [firestore]);
 
-  const { data: quizzes, isLoading } = useCollection<Omit<Quiz, 'id'>>(quizzesCollectionRef);
+  const { data: quizzes, isLoading } = useCollection<QuizDocument>(quizzesCollectionRef);
 
   const handleDelete = async () => {
     if (!firestore || !quizToDelete) return;

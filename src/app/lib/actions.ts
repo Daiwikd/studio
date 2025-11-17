@@ -4,7 +4,6 @@ import {
   generateQuizQuestions,
   type GenerateQuizQuestionsOutput,
 } from '@/ai/flows/generate-quiz-questions';
-import { addQuiz } from './data';
 import { redirect } from 'next/navigation';
 import type { Question } from './types';
 import { createQuizSchema, generateQuestionsSchema, type GenerateQuestionsState } from './schemas';

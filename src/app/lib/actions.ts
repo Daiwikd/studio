@@ -7,8 +7,8 @@ import {
 import { redirect } from 'next/navigation';
 import type { Question } from './types';
 import { createQuizSchema, generateQuestionsSchema, type GenerateQuestionsState } from './schemas';
-import { FieldValue } from 'firebase-admin/firestore';
 import { getAdminDB } from '@/firebase/admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 function randomId() {
   return Math.random().toString(36).substring(2, 9);
@@ -59,12 +59,12 @@ export async function createQuizAction(formData: FormData) {
   
   const quizData = validatedFields.data;
 
-  // **THE FIX**: Explicitly create new question objects, discarding the client-side `id`.
-  // This guarantees that only the properties we want are saved to Firestore.
+  // **THE DEFINITIVE FIX**: Explicitly create new question objects, discarding the client-side `id`.
+  // This guarantees that only the properties defined here are saved to Firestore.
   const questionsForDb = quizData.questions.map(q => ({
     question: q.question,
     answer: q.answer,
-    options: q.options,
+    options: q.options || [], // Ensure options is an array
     type: q.type,
   }));
 
@@ -85,8 +85,9 @@ export async function createQuizAction(formData: FormData) {
     if (!docRef || !docRef.id) {
       throw new Error('Failed to create quiz document.');
     }
-
+    // This redirect will be caught by the client and followed
     redirect(`/quiz/${docRef.id}/share`);
+
   } catch (error) {
     console.error(error);
     throw new Error('Failed to create the quiz. Please try again.');

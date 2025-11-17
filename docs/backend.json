@@ -1,0 +1,241 @@
+{
+  "entities": {
+    "Quiz": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Quiz",
+      "type": "object",
+      "description": "Represents a quiz created by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the quiz."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the quiz."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the quiz."
+        },
+        "creatorId": {
+          "type": "string",
+          "description": "Reference to User who created the quiz. (Relationship: User 1:N Quiz)"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the quiz was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the quiz was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description",
+        "creatorId",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Question": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Question",
+      "type": "object",
+      "description": "Represents a question within a quiz.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the question."
+        },
+        "quizId": {
+          "type": "string",
+          "description": "Reference to Quiz to which this question belongs. (Relationship: Quiz 1:N Question)"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of question (e.g., multiple choice, true/false, short answer)."
+        },
+        "text": {
+          "type": "string",
+          "description": "The text of the question."
+        },
+        "correctAnswer": {
+          "type": "string",
+          "description": "Correct Answer for the question"
+        },
+        "options": {
+          "type": "array",
+          "description": "A list of possible options.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "quizId",
+        "type",
+        "text",
+        "correctAnswer"
+      ]
+    },
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "username": {
+          "type": "string",
+          "description": "Username of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "email"
+      ]
+    },
+    "QuizAttempt": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "QuizAttempt",
+      "type": "object",
+      "description": "Represents a user's attempt to take a quiz.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the quiz attempt."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who took the quiz. (Relationship: User 1:N QuizAttempt)"
+        },
+        "quizId": {
+          "type": "string",
+          "description": "Reference to the Quiz that was attempted. (Relationship: Quiz 1:N QuizAttempt)"
+        },
+        "score": {
+          "type": "number",
+          "description": "The score achieved on the quiz attempt."
+        },
+        "completionTime": {
+          "type": "string",
+          "description": "Timestamp indicating when the quiz attempt was completed.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "quizId",
+        "score",
+        "completionTime"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Collection to store user profiles.  User documents are created via Firebase Authentication.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/quizzes/{quizId}",
+        "definition": {
+          "entityName": "Quiz",
+          "schema": {
+            "$ref": "#/backend/entities/Quiz"
+          },
+          "description": "Collection to store quizzes created by a user. Establishes path-based ownership for security rules.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user (creator of the quiz)."
+            },
+            {
+              "name": "quizId",
+              "description": "The unique identifier for the quiz."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/quizzes/{quizId}/questions/{questionId}",
+        "definition": {
+          "entityName": "Question",
+          "schema": {
+            "$ref": "#/backend/entities/Question"
+          },
+          "description": "Subcollection to store questions associated with a specific quiz. Inherits ownership from the parent quiz document.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user (creator of the quiz)."
+            },
+            {
+              "name": "quizId",
+              "description": "The unique identifier for the quiz."
+            },
+            {
+              "name": "questionId",
+              "description": "The unique identifier for the question."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/quizAttempts/{quizAttemptId}",
+        "definition": {
+          "entityName": "QuizAttempt",
+          "schema": {
+            "$ref": "#/backend/entities/QuizAttempt"
+          },
+          "description": "Collection to store quiz attempts made by a user. Establishes path-based ownership for the user's attempts.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user who attempted the quiz."
+            },
+            {
+              "name": "quizAttemptId",
+              "description": "The unique identifier for the quiz attempt."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to support the QuizMaster application's core features, focusing on quiz creation, taking, and sharing. The structure prioritizes authorization independence and clear security rules.\n\nQuizzes are stored under `/users/{userId}/quizzes/{quizId}` to establish clear ownership. This allows for path-based security rules, ensuring only the creator can modify their quizzes. Questions are stored as subcollections (`/users/{userId}/quizzes/{quizId}/questions/{questionId}`) to maintain hierarchy and simplify queries.\n\nQuiz attempts are stored under `/users/{userId}/quizAttempts/{quizAttemptId}`. Each `quizAttempt` contains the `quizId` and other attempt-specific information. This allows users to view their past attempts and scores.\n\nThis design achieves Authorization Independence by avoiding `get()` calls in security rules. Ownership is determined by the path (`/users/{userId}/quizzes`), which allows atomic operations and simplifies debugging.  The structure also supports the required QAPs (Rules are not Filters) since listing quizzes and quiz attempts is scoped to the user, allowing efficient and secure list operations."
+  }
+}

@@ -8,7 +8,7 @@ import { redirect } from 'next/navigation';
 import type { Question } from './types';
 import { createQuizSchema, generateQuestionsSchema, type GenerateQuestionsState } from './schemas';
 import { getAdminDB } from '@/firebase/admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { FieldValue, type DocumentReference } from 'firebase-admin/firestore';
 
 function randomId() {
   return Math.random().toString(36).substring(2, 9);
@@ -58,26 +58,25 @@ export async function createQuizAction(formData: FormData) {
   }
   
   const quizData = validatedFields.data;
-
-  // **THE DEFINITIVE FIX**: Explicitly create new question objects, discarding the client-side `id`.
-  // This guarantees that only the properties defined here are saved to Firestore.
+  
   const questionsForDb = quizData.questions.map(q => ({
     question: q.question,
     answer: q.answer,
-    options: q.options || [], // Ensure options is ALWAYS an array.
+    options: q.options || [],
     type: q.type,
   }));
 
   const finalQuizData = {
     title: quizData.title,
-    questions: questionsForDb, // Use the clean array of questions
+    questions: questionsForDb,
   };
 
+  let docRef: DocumentReference | null = null;
   try {
     const db = getAdminDB();
     const collectionRef = db.collection('quizzes');
     
-    const docRef = await collectionRef.add({
+    docRef = await collectionRef.add({
       ...finalQuizData,
       createdAt: FieldValue.serverTimestamp(),
     });
@@ -85,11 +84,11 @@ export async function createQuizAction(formData: FormData) {
     if (!docRef || !docRef.id) {
       throw new Error('Failed to create quiz document.');
     }
-    // This redirect will be caught by the client and followed
-    redirect(`/quiz/${docRef.id}/share`);
-
   } catch (error) {
     console.error(error);
     throw new Error('Failed to create the quiz. Please try again.');
   }
+
+  // This redirect will be caught by the client and followed
+  redirect(`/quiz/${docRef.id}/share`);
 }

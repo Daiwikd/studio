@@ -7,12 +7,8 @@ import {
 import { redirect } from 'next/navigation';
 import type { Question } from './types';
 import { createQuizSchema, generateQuestionsSchema, type GenerateQuestionsState } from './schemas';
-import {
-  addDoc,
-  collection,
-  serverTimestamp,
-} from 'firebase/firestore';
-import { initializeFirebase } from '@/firebase';
+import { FieldValue } from 'firebase-admin/firestore';
+import { getAdminDB } from '@/firebase/admin';
 
 function randomId() {
   return Math.random().toString(36).substring(2, 9);
@@ -77,12 +73,12 @@ export async function createQuizAction(formData: FormData) {
   };
 
   try {
-    const { firestore } = initializeFirebase();
-    const collectionRef = collection(firestore, 'quizzes');
-
-    const docRef = await addDoc(collectionRef, {
+    const db = getAdminDB();
+    const collectionRef = db.collection('quizzes');
+    
+    const docRef = await collectionRef.add({
       ...finalQuizData,
-      createdAt: serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
     });
 
     if (!docRef || !docRef.id) {

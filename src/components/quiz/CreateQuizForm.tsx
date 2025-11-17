@@ -2,10 +2,10 @@
 
 import {
   createQuizAction,
-  createQuizSchema,
   generateQuestionsAction,
-  type GenerateQuestionsState,
 } from '@/app/lib/actions';
+import type { GenerateQuestionsState } from '@/app/lib/schemas';
+import { createQuizSchema } from '@/app/lib/schemas';
 import { Button } from '@/components/ui/button';
 import {
   Form,

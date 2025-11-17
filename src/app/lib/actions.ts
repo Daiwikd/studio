@@ -4,35 +4,10 @@ import {
   generateQuizQuestions,
   type GenerateQuizQuestionsOutput,
 } from '@/ai/flows/generate-quiz-questions';
-import { z } from 'zod';
 import { addQuiz } from './data';
 import { redirect } from 'next/navigation';
 import type { Question } from './types';
-
-const questionSchema = z.object({
-  id: z.string(),
-  question: z.string().min(1, 'Question cannot be empty.'),
-  options: z.array(z.string()),
-  answer: z.string().min(1, 'Answer cannot be empty.'),
-  type: z.enum(['multiple_choice', 'true_false', 'short_answer']),
-});
-
-export const createQuizSchema = z.object({
-  title: z.string().min(1, 'Quiz title cannot be empty.'),
-  questions: z
-    .array(questionSchema)
-    .min(1, 'Quiz must have at least one question.'),
-});
-
-export const generateQuestionsSchema = z.object({
-  topic: z.string().min(3, 'Topic must be at least 3 characters long.'),
-  numberOfQuestions: z.coerce.number().min(1).max(10),
-});
-
-export type GenerateQuestionsState = {
-  questions?: Question[];
-  error?: string;
-};
+import { createQuizSchema, generateQuestionsSchema, type GenerateQuestionsState } from './schemas';
 
 export async function generateQuestionsAction(
   prevState: GenerateQuestionsState,

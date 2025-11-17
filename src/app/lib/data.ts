@@ -1,4 +1,5 @@
 import type { Quiz } from './types';
+import { randomUUID } from 'crypto';
 
 // In-memory store for quizzes. NOTE: This will be reset on every server restart.
 const quizzes: Quiz[] = [];
@@ -13,7 +14,7 @@ export const addQuiz = async (quiz: Omit<Quiz, 'id'>): Promise<Quiz> => {
   // Simulate async operation
   await new Promise(resolve => setTimeout(resolve, 50));
   const newQuiz: Quiz = {
-    id: crypto.randomUUID(),
+    id: randomUUID(),
     ...quiz,
   };
   quizzes.push(newQuiz);

@@ -1,13 +1,23 @@
-import { BrainCircuit } from 'lucide-react';
+
+import { BrainCircuit, Library } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from './ui/button';
 
 export default function Header() {
   return (
     <header className="px-4 lg:px-6 h-16 flex items-center border-b">
-      <Link href="/" className="flex items-center justify-center">
+      <Link href="/" className="flex items-center justify-center mr-auto">
         <BrainCircuit className="h-6 w-6 text-primary" />
         <span className="ml-2 text-xl font-headline font-semibold">QuizMaster</span>
       </Link>
+      <nav>
+        <Button asChild variant="ghost">
+          <Link href="/quizzes">
+            <Library className="mr-2 h-4 w-4" />
+            Browse Quizzes
+          </Link>
+        </Button>
+      </nav>
     </header>
   );
 }

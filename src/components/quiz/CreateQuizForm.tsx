@@ -5,7 +5,7 @@ import {
   generateQuestionsAction,
 } from '@/app/lib/actions';
 import type { GenerateQuestionsState } from '@/app/lib/schemas';
-import { createQuizSchema } from '@/app/lib/schemas';
+import { createQuizSchema, generateQuestionsSchema } from '@/app/lib/schemas';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -41,6 +41,7 @@ import {
 } from '@/components/ui/accordion';
 
 type QuizFormData = z.infer<typeof createQuizSchema>;
+type GenerateQuestionsFormData = z.infer<typeof generateQuestionsSchema>;
 
 function GeneratorForm({
   onQuestionsGenerated,
@@ -50,6 +51,15 @@ function GeneratorForm({
   const [state, formAction] = useActionState(generateQuestionsAction, {});
   const { pending } = useFormStatus();
   const { toast } = useToast();
+
+  const form = useForm<GenerateQuestionsFormData>({
+    resolver: zodResolver(generateQuestionsSchema),
+    defaultValues: {
+      topic: '',
+      numberOfQuestions: 5,
+    },
+  });
+
 
   useEffect(() => {
     if (state.questions) {
@@ -65,43 +75,59 @@ function GeneratorForm({
   }, [state, onQuestionsGenerated, toast]);
 
   return (
-    <form action={formAction} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormItem>
-          <FormLabel>Topic</FormLabel>
-          <FormControl>
-            <Input name="topic" placeholder="e.g., The Roman Empire" required />
-          </FormControl>
-          <FormDescription>The topic for your quiz.</FormDescription>
-        </FormItem>
-        <FormItem>
-          <FormLabel>Number of Questions</FormLabel>
-          <FormControl>
-            <Select name="numberOfQuestions" defaultValue="5">
-              <SelectTrigger>
-                <SelectValue placeholder="Select number" />
-              </SelectTrigger>
-              <SelectContent>
-                {[...Array(10)].map((_, i) => (
-                  <SelectItem key={i + 1} value={String(i + 1)}>
-                    {i + 1}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FormControl>
-          <FormDescription>Number of questions to generate.</FormDescription>
-        </FormItem>
-      </div>
-      <Button type="submit" disabled={pending} className="w-full md:w-auto">
-        {pending ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <BrainCircuit className="mr-2 h-4 w-4" />
-        )}
-        Generate with AI
-      </Button>
-    </form>
+    <Form {...form}>
+      <form action={formAction} className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="topic"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Topic</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., The Roman Empire" {...field} />
+                </FormControl>
+                <FormDescription>The topic for your quiz.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="numberOfQuestions"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Number of Questions</FormLabel>
+                <Select onValueChange={(value) => field.onChange(Number(value))} defaultValue={String(field.value)}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select number" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {[...Array(10)].map((_, i) => (
+                      <SelectItem key={i + 1} value={String(i + 1)}>
+                        {i + 1}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormDescription>Number of questions to generate.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <Button type="submit" disabled={pending} className="w-full md:w-auto">
+          {pending ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <BrainCircuit className="mr-2 h-4 w-4" />
+          )}
+          Generate with AI
+        </Button>
+      </form>
+    </Form>
   );
 }
 

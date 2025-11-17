@@ -60,8 +60,8 @@ export async function createQuizAction(formData: FormData) {
 
   // Re-construct question objects to ensure only expected properties are used,
   // and assign new, secure UUIDs.
-  const questionsWithServerIds: Question[] = quizData.questions.map(q => ({
-    id: randomUUID(), // Assign a new, secure UUID on the server
+  const questionsWithServerIds: Omit<Question, 'id'>[] = quizData.questions.map(q => ({
+    // No ID here, Firestore will generate it.
     question: q.question,
     answer: q.answer,
     options: q.options,

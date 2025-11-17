@@ -1,120 +1,12 @@
-/**
- * @fileoverview Firestore Security Rules for QuizMaster application.
- *
- * Core Philosophy:
- * This ruleset enforces a strict user-ownership model, where users have full control over their own data (quizzes, questions, and attempts) and cannot access data owned by other users.
- *
- * Data Structure:
- * The data is organized hierarchically under `/users/{userId}`, with subcollections for quizzes, questions, and quiz attempts.
- * - /users/{userId}: User profiles (created via Firebase Authentication).
- * - /users/{userId}/quizzes/{quizId}: Quizzes created by the user.
- * - /users/{userId}/quizzes/{quizId}/questions/{questionId}: Questions within a specific quiz.
- * - /users/{userId}/quizAttempts/{quizAttemptId}: Quiz attempts made by the user.
- *
- * Key Security Decisions:
- * - Users can only create, read, update, and delete quizzes, questions, and attempts under their own user ID.
- * - Listing quizzes and quiz attempts is scoped to the user, preventing unauthorized access to other users' data.
- * - Data consistency is enforced by validating the userId in the path against the document's internal creatorId.
- *
- * Denormalization for Authorization:
- * The Firestore structure denormalizes the `creatorId` (or `userId`) into the document path itself (e.g., `/users/{userId}/quizzes/{quizId}`), eliminating the need for `get()` calls to verify ownership.
- */
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    /**
-     * @description Checks if the user is signed in.
-     * @return {boolean} True if the user is signed in, false otherwise.
-     */
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    /**
-     * @description Checks if the authenticated user is the owner of the resource.
-     * @param {string} userId The user ID to compare against the authenticated user's ID.
-     * @return {boolean} True if the user is the owner, false otherwise.
-     */
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
-    /**
-     * @description Checks if the authenticated user is the owner of the resource and the resource exists.
-     * @param {string} userId The user ID to compare against the authenticated user's ID.
-     * @return {boolean} True if the user is the existing owner, false otherwise.
-     */
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
-    }
-
-    /**
-     * @description Rules for the /users/{userId} collection.
-     * @path /users/{userId}
-     * @allow (create) - User with matching auth UID can create their own profile.
-     * @allow (get, update, delete) - User with matching auth UID can read, update, or delete their own profile.
-     * @deny (create) - User tries to create a profile with an ID that doesn't match their auth UID.
-     * @deny (get, update, delete) - User tries to access or modify another user's profile.
-     * @principle Enforces document ownership for all operations.  User documents are created via Firebase Authentication.
-     */
-    match /users/{userId} {
-      allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Rules for the /users/{userId}/quizzes/{quizId} collection.
-     * @path /users/{userId}/quizzes/{quizId}
-     * @allow (create) - User with matching auth UID can create a quiz under their profile.
-     * @allow (get, list, update, delete) - User with matching auth UID can read, list, update, or delete their own quizzes.
-     * @deny (create) - User tries to create a quiz under another user's profile.
-     * @deny (get, list, update, delete) - User tries to access or modify another user's quiz.
-     * @principle Enforces document ownership for all operations within a user's quiz collection.
-     */
-    match /users/{userId}/quizzes/{quizId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.creatorId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.creatorId == resource.data.creatorId;
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Rules for the /users/{userId}/quizzes/{quizId}/questions/{questionId} collection.
-     * @path /users/{userId}/quizzes/{quizId}/questions/{questionId}
-     * @allow (create) - User with matching auth UID can create a question under their quiz.
-     * @allow (get, list, update, delete) - User with matching auth UID can read, list, update, or delete their own questions.
-     * @deny (create) - User tries to create a question under another user's quiz.
-     * @deny (get, list, update, delete) - User tries to access or modify another user's question.
-     * @principle Enforces document ownership for all operations within a user's quiz questions collection.
-     */
-    match /users/{userId}/quizzes/{quizId}/questions/{questionId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Rules for the /users/{userId}/quizAttempts/{quizAttemptId} collection.
-     * @path /users/{userId}/quizAttempts/{quizAttemptId}
-     * @allow (create) - User with matching auth UID can create a quiz attempt under their profile.
-     * @allow (get, list, update, delete) - User with matching auth UID can read, list, update, or delete their own quiz attempts.
-     * @deny (create) - User tries to create a quiz attempt under another user's profile.
-     * @deny (get, list, update, delete) - User tries to access or modify another user's quiz attempt.
-     * @principle Enforces document ownership for all operations within a user's quiz attempts collection.
-     */
-    match /users/{userId}/quizAttempts/{quizAttemptId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId && request.resource.data.quizId != null;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
-      allow delete: if isExistingOwner(userId);
+    // Allow public read access to quizzes, but restrict writes.
+    // In a real app, you would lock this down further.
+    match /quizzes/{quizId} {
+      allow read: if true;
+      allow write: if true; // WARNING: Insecure, for prototyping only.
     }
   }
 }

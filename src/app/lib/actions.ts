@@ -8,6 +8,7 @@ import { addQuiz } from './data';
 import { redirect } from 'next/navigation';
 import type { Question } from './types';
 import { createQuizSchema, generateQuestionsSchema, type GenerateQuestionsState } from './schemas';
+import { randomUUID } from 'crypto';
 
 export async function generateQuestionsAction(
   prevState: GenerateQuestionsState,
@@ -29,7 +30,7 @@ export async function generateQuestionsAction(
     );
 
     const questions: Question[] = output.questions.map((q) => ({
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       question: q.question,
       answer: q.answer,
       options: q.options || [],
@@ -50,9 +51,15 @@ export async function createQuizAction(formData: FormData) {
   if (!validatedFields.success) {
     throw new Error(validatedFields.error.message);
   }
+  
+  const quizData = validatedFields.data;
+  quizData.questions = quizData.questions.map(q => ({
+    ...q,
+    id: randomUUID(),
+  }));
 
   try {
-    const newQuiz = await addQuiz(validatedFields.data);
+    const newQuiz = await addQuiz(quizData);
     redirect(`/quiz/${newQuiz.id}/share`);
   } catch (error) {
     console.error(error);

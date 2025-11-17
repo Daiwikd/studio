@@ -4,7 +4,7 @@ import {
   createQuizAction,
   generateQuestionsAction,
 } from '@/app/lib/actions';
-import type { GenerateQuestionsState } from '@/app/lib/schemas';
+import type { GenerateQuestionsState, GenerateQuestionsFormData } from '@/app/lib/schemas';
 import { createQuizSchema, generateQuestionsSchema } from '@/app/lib/schemas';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,7 +31,6 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useActionState, useEffect, useRef } from 'react';
-import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
 import {
   Accordion,
@@ -41,7 +40,6 @@ import {
 } from '@/components/ui/accordion';
 
 type QuizFormData = z.infer<typeof createQuizSchema>;
-type GenerateQuestionsFormData = z.infer<typeof generateQuestionsSchema>;
 
 function randomId() {
   return Math.random().toString(36).substring(2, 9);
@@ -77,8 +75,18 @@ function GeneratorForm({
   }, [state, onQuestionsGenerated, toast]);
 
   return (
-     <Form {...form}>
-      <form action={formAction} className="space-y-4">
+    <Form {...form}>
+      <form
+        action={formAction}
+        className="space-y-4"
+        onSubmit={form.handleSubmit(() => {
+          const formData = new FormData();
+          const data = form.getValues();
+          formData.append('topic', data.topic);
+          formData.append('numberOfQuestions', String(data.numberOfQuestions));
+          formAction(formData);
+        })}
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}

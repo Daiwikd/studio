@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { Question } from './types';
 
 const questionSchema = z.object({
-  id: z.string(),
+  id: z.string().optional(),
   question: z.string().min(1, 'Question cannot be empty.'),
   options: z.array(z.string()),
   answer: z.string().min(1, 'Answer cannot be empty.'),

@@ -5,7 +5,8 @@ service cloud.firestore {
     // Allow public read access to quizzes, but restrict writes.
     // In a real app, you would lock this down further.
     match /quizzes/{quizId} {
-      allow read: if true;
+      // Allow reading a single quiz and listing all quizzes
+      allow get, list: if true;
       allow write: if true; // WARNING: Insecure, for prototyping only.
     }
   }

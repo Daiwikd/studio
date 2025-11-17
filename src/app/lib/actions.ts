@@ -64,7 +64,7 @@ export async function createQuizAction(formData: FormData) {
   const questionsForDb = quizData.questions.map(q => ({
     question: q.question,
     answer: q.answer,
-    options: q.options || [], // Ensure options is an array
+    options: q.options || [], // Ensure options is ALWAYS an array.
     type: q.type,
   }));
 

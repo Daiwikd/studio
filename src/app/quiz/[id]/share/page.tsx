@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import Header from '@/components/Header';
 import { ShareQuiz } from '@/components/quiz/ShareQuiz';
 import { notFound, useParams } from 'next/navigation';
-import { useFirebase } from '@/firebase';
+import { useFirebase, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -14,7 +14,10 @@ export default function SharePage() {
   const id = params.id as string;
   const { firestore } = useFirebase();
 
-  const quizRef = firestore ? doc(firestore, 'quizzes', id) : null;
+  const quizRef = useMemoFirebase(() => {
+    if (!firestore || !id) return null;
+    return doc(firestore, 'quizzes', id);
+  }, [firestore, id]);
   const { data: quiz, isLoading } = useDoc(quizRef);
 
   useEffect(() => {

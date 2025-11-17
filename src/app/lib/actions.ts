@@ -33,8 +33,9 @@ export async function generateQuestionsAction(
       validatedFields.data
     );
 
+    // Ensure generated questions have a temporary client-side ID for the form.
     const questions: Question[] = output.questions.map((q) => ({
-      id: randomId(), // Add a temporary client-side ID
+      id: randomId(), 
       question: q.question,
       answer: q.answer,
       options: q.options || [],
@@ -58,9 +59,9 @@ export async function createQuizAction(formData: FormData) {
   
   const quizData = validatedFields.data;
 
-  // Re-construct question objects to ensure only expected properties are used.
-  // The ID from the client is discarded.
-  const questionsWithServerIds: Omit<Question, 'id'>[] = quizData.questions.map(q => ({
+  // **THE FIX**: Explicitly create new question objects, discarding the client-side `id`.
+  // This guarantees that only the properties we want are saved to Firestore.
+  const questionsForDb = quizData.questions.map(q => ({
     question: q.question,
     answer: q.answer,
     options: q.options,
@@ -69,7 +70,7 @@ export async function createQuizAction(formData: FormData) {
 
   const finalQuizData = {
     title: quizData.title,
-    questions: questionsWithServerIds,
+    questions: questionsForDb, // Use the clean array of questions
   };
 
   try {

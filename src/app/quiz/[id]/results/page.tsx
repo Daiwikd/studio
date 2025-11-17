@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import Header from '@/components/Header';
 import { QuizResults } from '@/components/quiz/QuizResults';
 import { notFound, useParams } from 'next/navigation';
-import { useFirebase } from '@/firebase/provider';
+import { useFirebase, useMemoFirebase } from '@/firebase/provider';
 import { doc } from 'firebase/firestore';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import type { Quiz } from '@/app/lib/types';
@@ -16,7 +16,11 @@ export default function ResultsPage() {
   const id = params.id as string;
   const { firestore } = useFirebase();
 
-  const quizRef = firestore ? doc(firestore, 'quizzes', id) : null;
+  const quizRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'quizzes', id);
+  }, [firestore, id]);
+
   const { data: quiz, isLoading } = useDoc<Omit<Quiz, 'id'>>(quizRef);
   
   useEffect(() => {

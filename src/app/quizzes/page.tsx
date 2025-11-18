@@ -98,19 +98,19 @@ function QuizList() {
     <AlertDialog>
       <div className="max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
         {quizzes.map((quiz) => (
-          <Card key={quiz.id} className="flex flex-col justify-center items-center aspect-square text-center">
-            <CardHeader className="p-4">
-              <CardTitle className="font-headline text-lg">{quiz.title}</CardTitle>
+          <Card key={quiz.id} className="flex flex-col justify-center items-center aspect-square text-center h-56 w-56 mx-auto">
+            <CardHeader className="p-2">
+              <CardTitle className="font-headline text-base">{quiz.title}</CardTitle>
               <CardDescription>{quiz.questions.length} questions</CardDescription>
             </CardHeader>
-            <CardFooter className="p-4 flex-col gap-4">
+            <CardFooter className="p-2 flex-col gap-2">
               <Button asChild size="sm">
                 <Link href={`/quiz/${quiz.id}`}>
                   Take Quiz <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
                <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="icon" className="h-9 w-9" onClick={() => setQuizToDelete(quiz)}>
+                <Button variant="destructive" size="icon" className="h-8 w-8" onClick={() => setQuizToDelete(quiz)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </AlertDialogTrigger>

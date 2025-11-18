@@ -1,7 +1,5 @@
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Header from '@/components/Header';
 import { ArrowRight, BrainCircuit, Share2, Trophy } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,8 +23,6 @@ const features = [
 ];
 
 export default function Home() {
-  const heroImage = PlaceHolderImages.find((img) => img.id === 'hero-quiz');
-
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -52,16 +48,9 @@ export default function Home() {
                   </Button>
                 </div>
               </div>
-              <div className="relative h-64 md:h-auto">
-                {heroImage && (
-                  <Image
-                    src={heroImage.imageUrl}
-                    alt={heroImage.description}
-                    data-ai-hint={heroImage.imageHint}
-                    fill
-                    className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
-                  />
-                )}
+              <div className="flex items-center justify-center relative h-64 md:h-auto">
+                <BrainCircuit className="w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 text-primary/10" strokeWidth={1} />
+                <BrainCircuit className="absolute w-32 h-32 sm:w-48 sm:h-48 lg:w-64 lg:h-64 text-primary/80" strokeWidth={1.5} />
               </div>
             </div>
           </div>

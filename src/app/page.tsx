@@ -40,7 +40,7 @@ export default function Home() {
                     Create and Share Engaging Quizzes
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    Welcome to QuizMaster. Effortlessly create, customize, and share quizzes on any subject.
+                    Welcome to QuizCrafter. Effortlessly create, customize, and share quizzes on any subject.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
@@ -94,7 +94,7 @@ export default function Home() {
         </section>
       </main>
       <footer className="flex items-center justify-center py-6 border-t">
-        <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} QuizMaster. All rights reserved.</p>
+        <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} QuizCrafter. All rights reserved.</p>
       </footer>
     </div>
   );

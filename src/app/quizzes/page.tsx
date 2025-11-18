@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import Header from '@/components/Header';
-import { useFirebase, useMemoFirebase } from '@/firebase';
+import { useFirebase } from '@/firebase';
 import { collection, doc, deleteDoc } from 'firebase/firestore';
 import { useCollection, type WithId } from '@/firebase/firestore/use-collection';
 import type { QuizDocument } from '@/app/lib/types';
@@ -24,6 +24,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useMemoFirebase } from '@/firebase/provider';
 
 function QuizList() {
   const { firestore } = useFirebase();
@@ -62,8 +63,8 @@ function QuizList() {
 
   if (isLoading) {
     return (
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[...Array(3)].map((_, i) => (
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+        {[...Array(4)].map((_, i) => (
           <Card key={i}>
             <CardHeader>
               <Skeleton className="h-6 w-3/4" />
@@ -95,7 +96,7 @@ function QuizList() {
 
   return (
     <AlertDialog>
-       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+       <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
         {quizzes.map((quiz) => (
           <Card key={quiz.id} className="flex flex-col">
             <CardHeader>

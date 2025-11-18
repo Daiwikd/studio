@@ -64,15 +64,13 @@ function QuizList() {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[...Array(4)].map((_, i) => (
-          <Card key={i} className="flex flex-col justify-center items-center h-40 w-80">
-            <CardHeader className="p-2 pt-4">
-              <Skeleton className="h-5 w-24 mx-auto" />
-              <Skeleton className="h-4 w-16 mx-auto" />
-            </CardHeader>
-            <CardFooter className="flex-col gap-2 p-2">
+          <Card key={i} className="h-40 w-80 p-4">
+            <Skeleton className="h-5 w-3/4 mb-2" />
+            <Skeleton className="h-4 w-1/2" />
+            <div className="flex justify-between items-center mt-4">
               <Skeleton className="h-9 w-24" />
               <Skeleton className="h-8 w-8 rounded-full" />
-            </CardFooter>
+            </div>
           </Card>
         ))}
       </div>
@@ -98,12 +96,12 @@ function QuizList() {
     <AlertDialog>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {quizzes.map((quiz) => (
-          <Card key={quiz.id} className="flex flex-col justify-center items-center text-center h-40 w-80">
-            <CardHeader className="p-2 pt-4">
+          <Card key={quiz.id} className="flex flex-col justify-between h-40 w-80 p-4">
+            <CardHeader className="p-0">
               <CardTitle className="font-headline text-base">{quiz.title}</CardTitle>
               <CardDescription>{quiz.questions.length} questions</CardDescription>
             </CardHeader>
-            <CardFooter className="p-2 flex-col gap-2">
+            <CardFooter className="p-0 flex justify-between items-center">
               <Button asChild size="sm">
                 <Link href={`/quiz/${quiz.id}`}>
                   Take Quiz <ArrowRight className="ml-2 h-4 w-4" />

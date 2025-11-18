@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useState } from 'react';
@@ -64,20 +62,19 @@ function QuizList() {
 
   if (isLoading) {
     return (
-      <div className="max-w-2xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i} className="flex flex-col justify-center items-center aspect-square">
-              <CardHeader>
-                <Skeleton className="h-5 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-              </CardHeader>
-              <CardFooter>
-                <Skeleton className="h-9 w-24" />
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+      <div className="max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <Card key={i} className="flex flex-col justify-center items-center aspect-square">
+            <CardHeader>
+              <Skeleton className="h-5 w-3/4 mx-auto" />
+              <Skeleton className="h-4 w-1/2 mx-auto" />
+            </CardHeader>
+            <CardFooter className="flex-col gap-4">
+              <Skeleton className="h-9 w-24" />
+              <Skeleton className="h-9 w-9 rounded-full" />
+            </CardFooter>
+          </Card>
+        ))}
       </div>
     );
   }
@@ -99,29 +96,27 @@ function QuizList() {
 
   return (
     <AlertDialog>
-      <div className="max-w-2xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {quizzes.map((quiz) => (
-            <Card key={quiz.id} className="flex flex-col justify-center items-center aspect-square text-center">
-              <CardHeader className="p-4">
-                <CardTitle className="font-headline text-lg">{quiz.title}</CardTitle>
-                <CardDescription>{quiz.questions.length} questions</CardDescription>
-              </CardHeader>
-              <CardFooter className="p-4 flex-col gap-4">
-                <Button asChild size="sm">
-                  <Link href={`/quiz/${quiz.id}`}>
-                    Take Quiz <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
+      <div className="max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {quizzes.map((quiz) => (
+          <Card key={quiz.id} className="flex flex-col justify-center items-center aspect-square text-center">
+            <CardHeader className="p-4">
+              <CardTitle className="font-headline text-lg">{quiz.title}</CardTitle>
+              <CardDescription>{quiz.questions.length} questions</CardDescription>
+            </CardHeader>
+            <CardFooter className="p-4 flex-col gap-4">
+              <Button asChild size="sm">
+                <Link href={`/quiz/${quiz.id}`}>
+                  Take Quiz <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+               <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="icon" className="h-9 w-9" onClick={() => setQuizToDelete(quiz)}>
+                  <Trash2 className="h-4 w-4" />
                 </Button>
-                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive" size="icon" className="h-9 w-9" onClick={() => setQuizToDelete(quiz)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </AlertDialogTrigger>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+              </AlertDialogTrigger>
+            </CardFooter>
+          </Card>
+        ))}
       </div>
       <AlertDialogContent>
         <AlertDialogHeader>

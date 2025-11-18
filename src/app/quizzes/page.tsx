@@ -8,7 +8,7 @@ import { useFirebase } from '@/firebase';
 import { collection, doc, deleteDoc } from 'firebase/firestore';
 import { useCollection, type WithId } from '@/firebase/firestore/use-collection';
 import type { QuizDocument } from '@/app/lib/types';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -66,12 +66,12 @@ function QuizList() {
     return (
       <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
         {[...Array(8)].map((_, i) => (
-          <Card key={i}>
-            <CardHeader className="p-4">
+          <Card key={i} className="aspect-square">
+            <CardHeader>
               <Skeleton className="h-5 w-3/4" />
               <Skeleton className="h-4 w-1/2" />
             </CardHeader>
-            <CardFooter className="p-4">
+            <CardFooter>
               <Skeleton className="h-9 w-24" />
             </CardFooter>
           </Card>
@@ -99,13 +99,12 @@ function QuizList() {
     <AlertDialog>
        <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         {quizzes.map((quiz) => (
-          <Card key={quiz.id} className="flex flex-col">
+          <Card key={quiz.id} className="flex flex-col justify-center items-center aspect-square text-center">
             <CardHeader className="p-4">
               <CardTitle className="font-headline text-lg">{quiz.title}</CardTitle>
               <CardDescription>{quiz.questions.length} questions</CardDescription>
             </CardHeader>
-            <CardContent className="flex-grow p-4"></CardContent>
-            <CardFooter className="p-4 flex justify-between">
+            <CardFooter className="p-4 flex-col gap-4">
               <Button asChild size="sm">
                 <Link href={`/quiz/${quiz.id}`}>
                   Take Quiz <ArrowRight className="ml-2 h-4 w-4" />

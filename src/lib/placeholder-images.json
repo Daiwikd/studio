@@ -2,9 +2,9 @@
   "placeholderImages": [
     {
       "id": "hero-quiz",
-      "description": "A vibrant, abstract image representing knowledge and learning.",
-      "imageUrl": "https://images.unsplash.com/photo-1633280059879-d85151fa5da4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxhYnN0cmFjdCUyMGVkdWNhdGlvbnxlbnwwfHx8fDE3NjMzMDU5MzR8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "abstract education"
+      "description": "A stack of books representing knowledge and learning.",
+      "imageUrl": "https://images.unsplash.com/photo-1550399105-c4db5fb85c18?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNDE5ODJ8MHwxfGFsbHx8fHx8fHx8fDE2NzQwNjQyMjg&ixlib=rb-4.0.3&q=80&w=1080",
+      "imageHint": "books knowledge"
     }
   ]
 }

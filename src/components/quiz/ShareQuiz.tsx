@@ -14,7 +14,8 @@ export function ShareQuiz({ quizId }: { quizId: string }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    setQuizUrl(`${window.location.origin}/quiz/${quizId}`);
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+    setQuizUrl(`${appUrl}/quiz/${quizId}`);
   }, [quizId]);
 
   const copyToClipboard = () => {

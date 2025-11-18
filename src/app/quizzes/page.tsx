@@ -97,20 +97,22 @@ function QuizList() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {quizzes.map((quiz) => (
           <Card key={quiz.id} className="flex flex-col justify-between h-40 w-80 p-4">
-            <CardHeader className="p-0">
-              <CardTitle className="font-headline text-base">{quiz.title}</CardTitle>
-              <CardDescription>{quiz.questions.length} questions</CardDescription>
-            </CardHeader>
+            <div className="flex justify-between items-start">
+              <CardHeader className="p-0">
+                <CardTitle className="font-headline text-base">{quiz.title}</CardTitle>
+                <CardDescription>{quiz.questions.length} questions</CardDescription>
+              </CardHeader>
+              <Button asChild variant="outline" size="sm" className="h-8 w-8 p-0">
+                <Link href={`/quiz/${quiz.id}/edit`}>
+                  <Pencil className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
             <CardFooter className="p-0 flex justify-between items-center">
                <div className="flex items-center gap-2">
                 <Button asChild size="sm">
                   <Link href={`/quiz/${quiz.id}`}>
                     Take Quiz <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="sm">
-                  <Link href={`/quiz/${quiz.id}/edit`}>
-                    <Pencil className="h-4 w-4" />
                   </Link>
                 </Button>
               </div>

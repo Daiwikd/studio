@@ -1,8 +1,6 @@
 'use client';
 
-import { generateQuestionsAction } from '@/app/lib/actions';
-import { type GenerateQuestionsState } from '@/app/lib/schemas';
-import { createQuizSchema, generateQuestionsSchema } from '@/app/lib/schemas';
+import { createQuizSchema } from '@/app/lib/schemas';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -18,7 +16,7 @@ import { useForm, useFieldArray, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type * as z from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BrainCircuit, Loader2, Plus, Trash2 } from 'lucide-react';
+import { Loader2, Plus, Trash2 } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -27,7 +25,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useActionState, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import {
   Accordion,
@@ -40,106 +38,9 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 
 type QuizFormData = z.infer<typeof createQuizSchema>;
-type GenerateQuestionsFormData = z.infer<typeof generateQuestionsSchema>;
 
 function randomId() {
   return Math.random().toString(36).substring(2, 9);
-}
-
-function GeneratorForm({
-  onQuestionsGenerated,
-}: {
-  onQuestionsGenerated: (questions: GenerateQuestionsState['questions']) => void;
-}) {
-  const [state, formAction, pending] = useActionState(generateQuestionsAction, {});
-  const { toast } = useToast();
-
-  const form = useForm<GenerateQuestionsFormData>({
-    resolver: zodResolver(generateQuestionsSchema),
-    defaultValues: {
-      topic: '',
-      numberOfQuestions: 5,
-    },
-  });
-
-  useEffect(() => {
-    if (state.questions) {
-      onQuestionsGenerated(state.questions);
-    }
-    if (state.error) {
-      toast({
-        variant: 'destructive',
-        title: 'Generation Failed',
-        description: state.error,
-      });
-    }
-  }, [state, onQuestionsGenerated, toast]);
-  
-  return (
-    <Form {...form}>
-      <form
-        action={formAction}
-        onSubmit={form.handleSubmit(() => {
-          const formData = new FormData();
-          const data = form.getValues();
-          formData.append('topic', data.topic);
-          formData.append('numberOfQuestions', String(data.numberOfQuestions));
-          formAction(formData);
-        })}
-        className="space-y-4"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="topic"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Topic</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., The Roman Empire" {...field} />
-                </FormControl>
-                <FormDescription>The topic for your quiz.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="numberOfQuestions"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Number of Questions</FormLabel>
-                <Select onValueChange={(value) => field.onChange(Number(value))} defaultValue={String(field.value)}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select number" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {[...Array(10)].map((_, i) => (
-                      <SelectItem key={i + 1} value={String(i + 1)}>
-                        {i + 1}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormDescription>Number of questions to generate.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <Button type="submit" disabled={pending} className="w-full md:w-auto">
-          {pending ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <BrainCircuit className="mr-2 h-4 w-4" />
-          )}
-          Generate with AI
-        </Button>
-      </form>
-    </Form>
-  );
 }
 
 function QuestionForm({ form }: { form: UseFormReturn<QuizFormData> }) {
@@ -330,14 +231,6 @@ export function CreateQuizForm() {
     }
   }, [errors, toast]);
 
-  const handleGeneratedQuestions = (
-    questions?: GenerateQuestionsState['questions']
-  ) => {
-    if (questions) {
-      form.setValue('questions', questions);
-    }
-  };
-
   const onSubmit = async (data: QuizFormData) => {
     if (!firestore) {
       toast({
@@ -390,16 +283,7 @@ export function CreateQuizForm() {
     <div className="space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">1. Generate Questions (Optional)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <GeneratorForm onQuestionsGenerated={handleGeneratedQuestions} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline">2. Customize Your Quiz</CardTitle>
+          <CardTitle className="font-headline">Create Your Quiz</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>

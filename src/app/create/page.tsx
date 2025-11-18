@@ -16,7 +16,7 @@ export default function CreateQuizPage() {
             <div className="space-y-2 text-center mb-8">
               <h1 className="text-3xl font-headline font-bold">Create Your Quiz</h1>
               <p className="text-muted-foreground">
-                Start by generating questions with AI, then customize them to perfection.
+                Build your own quiz from scratch. Add questions, options, and answers.
               </p>
             </div>
             <CreateQuizForm />

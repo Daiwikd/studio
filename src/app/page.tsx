@@ -9,8 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 const features = [
   {
     icon: <BrainCircuit className="w-8 h-8 text-primary" />,
-    title: 'AI-Powered Questions',
-    description: 'Generate engaging questions and answers in seconds for any topic.',
+    title: 'Easy Quiz Creation',
+    description: 'Quickly build quizzes on any topic you can imagine.',
   },
   {
     icon: <Trophy className="w-8 h-8 text-primary" />,
@@ -37,10 +37,10 @@ export default function Home() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-4">
                   <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                    Create Engaging Quizzes with the Power of AI
+                    Create and Share Engaging Quizzes
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    Welcome to QuizMaster. Effortlessly generate, customize, and share quizzes on any subject.
+                    Welcome to QuizMaster. Effortlessly create, customize, and share quizzes on any subject.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">

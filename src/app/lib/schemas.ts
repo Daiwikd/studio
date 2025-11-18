@@ -15,13 +15,3 @@ export const createQuizSchema = z.object({
     .array(questionSchema)
     .min(1, 'Quiz must have at least one question.'),
 });
-
-export const generateQuestionsSchema = z.object({
-  topic: z.string().min(3, 'Topic must be at least 3 characters long.'),
-  numberOfQuestions: z.coerce.number().min(1).max(10),
-});
-
-export type GenerateQuestionsState = {
-  questions?: Question[];
-  error?: string;
-};

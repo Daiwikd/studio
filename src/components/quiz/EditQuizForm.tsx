@@ -63,7 +63,7 @@ function QuestionForm({ form }: { form: UseFormReturn<QuizFormData> }) {
 
   return (
     <div className="space-y-4">
-      <Accordion type="multiple" className="w-full" defaultValue={fields.map(f => f.id)}>
+      <Accordion type="multiple" className="w-full">
         {fields.map((field, index) => (
           <AccordionItem value={field.id as string} key={field.id}>
             <AccordionTrigger className='font-headline'>

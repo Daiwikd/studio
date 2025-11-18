@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState } from 'react';
@@ -64,14 +65,14 @@ function QuizList() {
   if (isLoading) {
     return (
       <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        {[...Array(4)].map((_, i) => (
+        {[...Array(8)].map((_, i) => (
           <Card key={i}>
-            <CardHeader>
-              <Skeleton className="h-6 w-3/4" />
+            <CardHeader className="p-4">
+              <Skeleton className="h-5 w-3/4" />
               <Skeleton className="h-4 w-1/2" />
             </CardHeader>
-            <CardFooter>
-              <Skeleton className="h-10 w-28" />
+            <CardFooter className="p-4">
+              <Skeleton className="h-9 w-24" />
             </CardFooter>
           </Card>
         ))}
@@ -96,22 +97,22 @@ function QuizList() {
 
   return (
     <AlertDialog>
-       <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+       <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         {quizzes.map((quiz) => (
           <Card key={quiz.id} className="flex flex-col">
-            <CardHeader>
-              <CardTitle className="font-headline">{quiz.title}</CardTitle>
+            <CardHeader className="p-4">
+              <CardTitle className="font-headline text-lg">{quiz.title}</CardTitle>
               <CardDescription>{quiz.questions.length} questions</CardDescription>
             </CardHeader>
-            <CardContent className="flex-grow"></CardContent>
-            <CardFooter className="flex justify-between">
-              <Button asChild>
+            <CardContent className="flex-grow p-4"></CardContent>
+            <CardFooter className="p-4 flex justify-between">
+              <Button asChild size="sm">
                 <Link href={`/quiz/${quiz.id}`}>
                   Take Quiz <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
                <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="icon" onClick={() => setQuizToDelete(quiz)}>
+                <Button variant="destructive" size="icon" className="h-9 w-9" onClick={() => setQuizToDelete(quiz)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </AlertDialogTrigger>

@@ -64,9 +64,9 @@ function QuizList() {
 
   if (isLoading) {
     return (
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[...Array(8)].map((_, i) => (
-          <Card key={i} className="aspect-square">
+          <Card key={i} className="flex flex-col justify-center items-center aspect-square">
             <CardHeader>
               <Skeleton className="h-5 w-3/4" />
               <Skeleton className="h-4 w-1/2" />
@@ -97,7 +97,7 @@ function QuizList() {
 
   return (
     <AlertDialog>
-       <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {quizzes.map((quiz) => (
           <Card key={quiz.id} className="flex flex-col justify-center items-center aspect-square text-center">
             <CardHeader className="p-4">

@@ -2,6 +2,7 @@
 import { BrainCircuit, Library } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from './ui/button';
+import { ModeToggle } from './mode-toggle';
 
 export default function Header() {
   return (
@@ -10,13 +11,14 @@ export default function Header() {
         <BrainCircuit className="h-6 w-6 text-primary" />
         <span className="ml-2 text-xl font-headline font-semibold">QuizMaster</span>
       </Link>
-      <nav>
+      <nav className="flex items-center gap-4">
         <Button asChild variant="ghost">
           <Link href="/quizzes">
             <Library className="mr-2 h-4 w-4" />
             Browse Quizzes
           </Link>
         </Button>
+        <ModeToggle />
       </nav>
     </header>
   );

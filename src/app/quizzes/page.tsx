@@ -10,7 +10,7 @@ import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/comp
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, BookOpen, Trash2 } from 'lucide-react';
+import { ArrowRight, BookOpen, Trash2, Pencil } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -64,7 +64,7 @@ function QuizList() {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[...Array(4)].map((_, i) => (
-          <Card key={i} className="h-40 w-80 p-4">
+          <Card key={i} className="flex flex-col justify-between h-40 w-80 p-4">
             <Skeleton className="h-5 w-3/4 mb-2" />
             <Skeleton className="h-4 w-1/2" />
             <div className="flex justify-between items-center mt-4">
@@ -102,11 +102,18 @@ function QuizList() {
               <CardDescription>{quiz.questions.length} questions</CardDescription>
             </CardHeader>
             <CardFooter className="p-0 flex justify-between items-center">
-              <Button asChild size="sm">
-                <Link href={`/quiz/${quiz.id}`}>
-                  Take Quiz <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
+               <div className="flex items-center gap-2">
+                <Button asChild size="sm">
+                  <Link href={`/quiz/${quiz.id}`}>
+                    Take Quiz <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/quiz/${quiz.id}/edit`}>
+                    <Pencil className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
                <AlertDialogTrigger asChild>
                 <Button variant="destructive" size="icon" className="h-8 w-8" onClick={() => setQuizToDelete(quiz)}>
                   <Trash2 className="h-4 w-4" />

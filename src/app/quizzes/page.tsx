@@ -96,7 +96,7 @@ function QuizList() {
 
   return (
     <AlertDialog>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {quizzes.map((quiz) => (
           <Card key={quiz.id} className="flex flex-col justify-center items-center text-center h-48 w-48">
             <CardHeader className="p-2 pt-4">

@@ -5,9 +5,10 @@ import { Button } from './ui/button';
 import { ModeToggle } from './mode-toggle';
 
 export default function Header() {
+  const homeUrl = process.env.NEXT_PUBLIC_APP_URL || '/';
   return (
     <header className="px-4 lg:px-6 h-16 flex items-center border-b">
-      <Link href="/" className="flex items-center justify-center mr-auto">
+      <Link href={homeUrl} className="flex items-center justify-center mr-auto">
         <BrainCircuit className="h-6 w-6 text-primary" />
         <div className="flex flex-col ml-2">
           <span className="text-xl font-headline font-semibold leading-none">QuizCrafter</span>

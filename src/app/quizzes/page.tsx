@@ -64,14 +64,14 @@ function QuizList() {
     return (
       <div className="max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[...Array(4)].map((_, i) => (
-          <Card key={i} className="flex flex-col justify-center items-center aspect-square h-48 w-48">
+          <Card key={i} className="flex flex-col justify-center items-center aspect-square">
             <CardHeader>
-              <Skeleton className="h-5 w-3/4 mx-auto" />
-              <Skeleton className="h-4 w-1/2 mx-auto" />
+              <Skeleton className="h-5 w-24 mx-auto" />
+              <Skeleton className="h-4 w-16 mx-auto" />
             </CardHeader>
-            <CardFooter className="flex-col gap-4">
+            <CardFooter className="flex-col gap-2">
               <Skeleton className="h-9 w-24" />
-              <Skeleton className="h-9 w-9 rounded-full" />
+              <Skeleton className="h-8 w-8 rounded-full" />
             </CardFooter>
           </Card>
         ))}
@@ -98,7 +98,7 @@ function QuizList() {
     <AlertDialog>
       <div className="max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
         {quizzes.map((quiz) => (
-          <Card key={quiz.id} className="flex flex-col justify-center items-center aspect-square text-center h-48 w-48">
+          <Card key={quiz.id} className="flex flex-col justify-center items-center aspect-square text-center">
             <CardHeader className="p-2">
               <CardTitle className="font-headline text-base">{quiz.title}</CardTitle>
               <CardDescription>{quiz.questions.length} questions</CardDescription>

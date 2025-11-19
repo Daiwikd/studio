@@ -10,10 +10,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { Loader2 } from 'lucide-react';
 import Header from '@/components/Header';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Username is required.'),
@@ -65,16 +65,33 @@ export default function LoginPage() {
       });
       router.push('/'); // Redirect to home or dashboard after login
     } catch (error: any) {
-      console.error(error);
-      let errorMessage = 'An unexpected error occurred.';
-      if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-        errorMessage = 'Invalid username or password.';
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') {
+        // User does not exist, so create them
+        try {
+            await createUserWithEmailAndPassword(auth, email, data.password);
+            // try to sign in again after creating user
+            await signInWithEmailAndPassword(auth, email, data.password);
+            toast({
+              title: 'Account Created & Logged In',
+              description: "Welcome! Your account has been created.",
+            });
+            router.push('/');
+        } catch (creationError: any) {
+            console.error("Error creating user:", creationError);
+            toast({
+              variant: 'destructive',
+              title: 'Registration Failed',
+              description: 'Could not create your account. Please try again.',
+            });
+        }
+      } else {
+        console.error("Login Error:", error);
+        toast({
+          variant: 'destructive',
+          title: 'Login Failed',
+          description: 'Invalid username or password.',
+        });
       }
-      toast({
-        variant: 'destructive',
-        title: 'Login Failed',
-        description: errorMessage,
-      });
     } finally {
       setIsLoading(false);
     }

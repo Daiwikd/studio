@@ -10,21 +10,25 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/firebase';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Loader2 } from 'lucide-react';
 import Header from '@/components/Header';
-import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
-const signupSchema = z.object({
-  username: z.string().min(3, 'Username must be at least 3 characters.').max(20, 'Username must be less than 20 characters.'),
-  email: z.string().email('Invalid email address.'),
+const loginSchema = z.object({
+  username: z.string().min(1, 'Username is required.'),
   password: z.string().min(6, 'Password must be at least 6 characters.'),
 });
 
-type SignupFormData = z.infer<typeof signupSchema>;
+type LoginFormData = z.infer<typeof loginSchema>;
 
-export default function SignupPage() {
+// This mapping allows using usernames to log in while using Firebase's email-based auth.
+const usernameToEmailMap: Record<string, string> = {
+  'daiwikd': 'daiwikd@email.com',
+  'shivam': 'shivam@email.com',
+};
+
+export default function LoginPage() {
   const router = useRouter();
   const auth = useAuth();
   const { toast } = useToast();
@@ -34,27 +38,42 @@ export default function SignupPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignupFormData>({
-    resolver: zodResolver(signupSchema),
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: SignupFormData) => {
+  const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-      await updateProfile(userCredential.user, { displayName: data.username });
-      
-      toast({
-        title: 'Account Created',
-        description: "You've been successfully signed up.",
-      });
-      router.push('/'); // Redirect to home or dashboard after signup
-    } catch (error: any) {
-      console.error(error);
+    
+    const email = usernameToEmailMap[data.username.toLowerCase()];
+
+    if (!email) {
       toast({
         variant: 'destructive',
-        title: 'Sign-up Failed',
-        description: error.message || 'An unexpected error occurred.',
+        title: 'Login Failed',
+        description: 'Invalid username.',
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      await signInWithEmailAndPassword(auth, email, data.password);
+      toast({
+        title: 'Login Successful',
+        description: "You've been successfully logged in.",
+      });
+      router.push('/'); // Redirect to home or dashboard after login
+    } catch (error: any) {
+      console.error(error);
+      let errorMessage = 'An unexpected error occurred.';
+      if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        errorMessage = 'Invalid username or password.';
+      }
+      toast({
+        variant: 'destructive',
+        title: 'Login Failed',
+        description: errorMessage,
       });
     } finally {
       setIsLoading(false);
@@ -67,8 +86,8 @@ export default function SignupPage() {
       <main className="flex-1 flex items-center justify-center">
         <Card className="w-full max-w-sm">
           <CardHeader className="text-center">
-            <CardTitle className="font-headline text-2xl">Create an Account</CardTitle>
-            <CardDescription>Join QuizCrafter today!</CardDescription>
+            <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
+            <CardDescription>Sign in to continue to QuizCrafter</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -77,20 +96,10 @@ export default function SignupPage() {
                 <Input
                   id="username"
                   type="text"
-                  placeholder="yourname"
+                  placeholder="Enter your username"
                   {...register('username')}
                 />
                 {errors.username && <p className="text-sm text-destructive">{errors.username.message}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  {...register('email')}
-                />
-                {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
@@ -98,18 +107,10 @@ export default function SignupPage() {
                 {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? <Loader2 className="animate-spin" /> : 'Create Account'}
+                {isLoading ? <Loader2 className="animate-spin" /> : 'Login'}
               </Button>
             </form>
           </CardContent>
-           <CardFooter className="flex flex-col items-center justify-center text-sm">
-            <p className="text-muted-foreground">
-              Already have an account?{' '}
-              <Link href="/login" className="text-primary hover:underline">
-                Login
-              </Link>
-            </p>
-          </CardFooter>
         </Card>
       </main>
     </div>

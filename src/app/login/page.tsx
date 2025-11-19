@@ -13,15 +13,20 @@ import { useAuth } from '@/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Loader2 } from 'lucide-react';
 import Header from '@/components/Header';
-import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address.'),
+  username: z.string().min(1, 'Username is required.'),
   password: z.string().min(6, 'Password must be at least 6 characters.'),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
+
+// This mapping allows using usernames to log in while using Firebase's email-based auth.
+const usernameToEmailMap: Record<string, string> = {
+  'daiwikd': 'daiwikd@email.com',
+  'shivam': 'shivam@email.com',
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -39,8 +44,21 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
+    
+    const email = usernameToEmailMap[data.username.toLowerCase()];
+
+    if (!email) {
+      toast({
+        variant: 'destructive',
+        title: 'Login Failed',
+        description: 'Invalid username.',
+      });
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
+      await signInWithEmailAndPassword(auth, email, data.password);
       toast({
         title: 'Login Successful',
         description: "You've been successfully logged in.",
@@ -48,10 +66,14 @@ export default function LoginPage() {
       router.push('/'); // Redirect to home or dashboard after login
     } catch (error: any) {
       console.error(error);
+      let errorMessage = 'An unexpected error occurred.';
+      if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        errorMessage = 'Invalid username or password.';
+      }
       toast({
         variant: 'destructive',
         title: 'Login Failed',
-        description: error.message || 'An unexpected error occurred.',
+        description: errorMessage,
       });
     } finally {
       setIsLoading(false);
@@ -70,14 +92,14 @@ export default function LoginPage() {
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="username">Username</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  {...register('email')}
+                  id="username"
+                  type="text"
+                  placeholder="Enter your username"
+                  {...register('username')}
                 />
-                {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+                {errors.username && <p className="text-sm text-destructive">{errors.username.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
@@ -89,14 +111,6 @@ export default function LoginPage() {
               </Button>
             </form>
           </CardContent>
-           <CardFooter className="flex flex-col items-center justify-center text-sm">
-            <p className="text-muted-foreground">
-              Don&apos;t have an account?{' '}
-              <Link href="/signup" className="text-primary hover:underline">
-                Sign up
-              </Link>
-            </p>
-          </CardFooter>
         </Card>
       </main>
     </div>
